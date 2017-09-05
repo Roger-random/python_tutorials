@@ -1,0 +1,5 @@
+<!DOCTYPE HTML>
+<html>
+<meta http-equiv="refresh" content="30">
+running WebServer_temperature_V6b
+Getting temperatures... <br/><br /><temperature>t07 Sensor Temperature is: <t07 88.93 >88.93</t07> F <br />t08 Sensor Temperature is: <t08 88.81 >88.81</t08> F <br />t09 Sensor Temperature is: <t09 91.18 >91.18</t09> F <br />t10 Sensor temperature is: <t10 85.66 >85.66</t10> F <br />BMP085 Sensor temperature is: <ts1>90.86</ts1> F <br /></temperature><pressure>BMP085 Sensor atm pressure is: <p01>29.84</p01> inHg <br /></pressure><humidity>HIH-4030 Sensor reading is: <h01>-26.16</h01> % RH <br /></humidity></html>
