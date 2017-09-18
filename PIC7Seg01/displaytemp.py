@@ -28,7 +28,28 @@ class PIC_7Seg:
     Display the given value in hexadecimal format
     Any digits beyond 4 (0xFFFF) are truncated.
     """
-    print("Want to show {:4x}".format(value))
+    
+    # Truncate given value at 0xFFFF
+    value = value & 0xFFFF
+    
+    # Goal: Given the hexadecimal value, write out each digit as a
+    # byte. So for value of 0xBEEF, we want 0xB, 0xE, 0xE, 0xF.
+    # There's probably a really clever Python way to do this I don't
+    # know yet. The below feels very hacky.
+    
+    # Using string.format to get a string of four characters.
+    displayString = "{:04x}".format(value)
+    
+    # Break this string up into a list of four characters.
+    displayList = list(displayString)
+    
+    # Map these four characters to four integer values by using the
+    # integer parser (passing in base of 16)
+    displayBytes = map(lambda x: int(x, 16), displayList)
+    
+    print("Want to show {:x} {:x} {:x} {:x}".format(displayBytes[0], displayBytes[1],displayBytes[2],displayBytes[3]))
+    
+    self.pi.i2c_write_i2c_block_data(self._h, 0, displayBytes)
 
 if __name__ == "__main__":
   import time
@@ -54,14 +75,14 @@ if __name__ == "__main__":
   # LCD initialization
   led = PIC_7Seg(pi)
 
-  count = 0
+  count = 0x1
 
   try:
     print("Press Control-C to exit program.")
     while True:
       led.displayHex(count)
       count = count + 1
-      time.sleep(0.1)
+      time.sleep(0.5)
   except KeyboardInterrupt:
     pass
     
