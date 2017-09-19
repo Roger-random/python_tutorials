@@ -29,11 +29,11 @@ class PIC_7Seg:
     Any digits beyond 4 (0xFFFF) are truncated.
     """
     
-    # Truncate given value at 0xFFFF
+    # Cap given value at 0xFFFF
     value = value & 0xFFFF
     
     # Goal: Given the hexadecimal value, write out each digit as a
-    # byte. So for value of 0xBEEF, we want 0xB, 0xE, 0xE, 0xF.
+    # byte. So for value of 0xBEEF, we want [0xB, 0xE, 0xE, 0xF]
     # There's probably a really clever Python way to do this I don't
     # know yet. The below feels very hacky.
     
@@ -46,9 +46,40 @@ class PIC_7Seg:
     # Map these four characters to four integer values by using the
     # integer parser (passing in base of 16)
     displayBytes = map(lambda x: int(x, 16), displayList)
+
+    # Send the array of values to the PIC for display.
+    self.pi.i2c_write_i2c_block_data(self._h, 0, displayBytes)
     
-    print("Want to show {:x} {:x} {:x} {:x}".format(displayBytes[0], displayBytes[1],displayBytes[2],displayBytes[3]))
+  def displayFloat2(self, value):
+    """
+    Display the given decimal values to two decimal places.
+    """
     
+    # Cap given value at 100
+    value = value % 100
+    
+    # Goal: Given a floating point value, convert each digit into a byte.
+    # So "12.34" becomes [1, 2, 3, 4]
+    # There's probably a really clever Python way to do this I don't
+    # know yet. The below feels very hacky.
+    
+    # 12.34 -> "12.34"
+    displayString = "{:02.2f}".format(value)
+    
+    # "12.34" -> ["1", "2", ".", "3", "4"]
+    displayList = list(displayString)
+    
+    # TODO: We don't have a way to display decimal point at the moment,
+    # so the results are just the tens, ones, tenths, and hundredths
+    # digits on the display.
+    
+    # ["1", "2", ".", "3", "4"] -> ["1", "2", "3", "4"]
+    displayList.remove(".")
+    
+    # ["1", "2", "3", "4"] -> [1, 2, 3, 4]
+    displayBytes = map(lambda x: int(x), displayList)
+    
+    # Send the array of values to the PIC for display.
     self.pi.i2c_write_i2c_block_data(self._h, 0, displayBytes)
 
 if __name__ == "__main__":
@@ -75,14 +106,13 @@ if __name__ == "__main__":
   # LCD initialization
   led = PIC_7Seg(pi)
 
-  count = 0x1
-
   try:
     print("Press Control-C to exit program.")
     while True:
-      led.displayHex(count)
-      count = count + 1
-      time.sleep(0.5)
+      celsius = s.temperature()
+      farenheit = celsius * 1.8 + 32
+      led.displayFloat2(farenheit)
+      time.sleep(0.25)
   except KeyboardInterrupt:
     pass
     
