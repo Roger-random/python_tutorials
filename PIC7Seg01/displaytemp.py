@@ -111,7 +111,13 @@ if __name__ == "__main__":
     while True:
       celsius = s.temperature()
       farenheit = celsius * 1.8 + 32
-      led.displayFloat2(farenheit)
+      try:
+        led.displayFloat2(farenheit)
+      except Exception as err:
+        if err.value == "I2C write failed":
+          print("PIC has reset, waiting to retry.")
+        else:
+          raise
       time.sleep(0.25)
   except KeyboardInterrupt:
     pass
